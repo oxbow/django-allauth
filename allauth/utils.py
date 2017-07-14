@@ -276,10 +276,17 @@ def deserialize_instance(model, data):
 
 
 def set_form_field_order(form, fields_order):
-    assert isinstance(form.fields, OrderedDict)
-    form.fields = OrderedDict(
-        (f, form.fields[f])
-        for f in fields_order)
+    import collections
+    from django.utils.datastructures import SortedDict
+    if isinstance(form.fields, SortedDict):
+        form.fields = collections.OrderedDict((f, form.fields[f])
+                                  for f in fields_order)
+    else:
+        # Python 2.7+
+        from collections import OrderedDict
+        assert isinstance(form.fields, OrderedDict)
+        form.fields = collections.OrderedDict((f, form.fields[f])
+                                  for f in fields_order)
 
 
 def build_absolute_uri(request, location, protocol=None):
